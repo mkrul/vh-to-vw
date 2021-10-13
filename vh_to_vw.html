@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <h1>VH to VW converter</h1>
+    <h3>Instructions:</h3>
+    <ol>
+      <li>Maximize your browser window</li>
+      <li>Close any open JS consoles or dev tools</li>
+      <li>Choose a css file to import</li>
+      <li>Copy and paste the output below into your old css document</li>
+      <li>????</li>
+      <li>Profit</li>
+    </ol>
+  </head>
+  <body>
+    <input type="file" name="inputfile" id="inputfile" />
+    <br />
+    <pre id="file"></pre>
+  </body>
+</html>
+<script type="text/javascript">
+  var vhToPxOutput = [];
+  var pxToVwOutput = [];
+  var viewportHeight = window.innerHeight;
+  var vhRegex = /([.?\d]+)(vh)/;
+  var pxRegex = /([.?\d]+)(px)/;
+  var numRegex = /([-.0-9]+)/;
+
+  document.getElementById("inputfile").addEventListener("change", () => {
+    var reader = new FileReader();
+    var fileToRead = document.querySelector("input").files[0];
+
+    reader.addEventListener("loadend", () => {
+      var text = reader.result;
+      var vhLines = text.split("\n");
+      for (var line of vhLines) {
+        var vh = line.match(vhRegex);
+        if (vh === null) {
+          vhToPxOutput.push(line);
+          continue;
+        } else {
+          var conversion = convertVhToPx(vh[1]);
+          vhToPxOutput.push(line.replace(`${vh[1]}vh`, conversion));
+        }
+      }
+
+      var pxOutput = vhToPxOutput.join("\n");
+      var pxLines = pxOutput.split("\n");
+      for (var line of pxLines) {
+        var px = line.match(pxRegex);
+        if (px === null) {
+          pxToVwOutput.push(line);
+          continue;
+        } else {
+          var conversion = convertPxToVw(px[1]);
+          pxToVwOutput.push(line.replace(`${px[1]}px`, conversion));
+        }
+      }
+      document.getElementById("file").innerText = pxToVwOutput.join("\n");
+    });
+    reader.readAsText(fileToRead);
+  });
+
+  convertVhToPx = (vh) => {
+    return `${parseInt((vh * viewportHeight) / 100)}px`;
+  };
+
+  convertPxToVw = (px) => {
+    return `${parseInt((100 * px) / window.innerWidth)}vw`;
+  };
+</script>
