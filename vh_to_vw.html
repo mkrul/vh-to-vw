@@ -3,32 +3,99 @@
   <head>
     <h1>VH to VW converter</h1>
     <h3>Instructions:</h3>
+  </head>
+  <body>
     <ol>
-      <li>Maximize your browser window</li>
+      <li>
+        Enter a viewport height in pixels
+        <span style="font-size: 11px">(optional)</span>
+      </li>
+      <li>
+        Enter the form factor <span style="font-size: 11px">(optional)</span>
+      </li>
       <li>Close any open JS consoles or dev tools</li>
       <li>Choose a css file to import</li>
       <li>Copy and paste the output below into your old css document</li>
       <li>????</li>
       <li>Profit</li>
     </ol>
-  </head>
-  <body>
-    <input type="file" name="inputfile" id="inputfile" />
+    <div>
+      <label>Viewport height:</label>
+      <input
+        type="textbox"
+        name="viewportheight"
+        id="viewportheight"
+        value="1409"
+      /><sup> * use 1409 for most CTS calculations</sup>
+    </div>
     <br />
+    <div>
+      <label>Form Factor:</label>
+      <input
+        type="textbox"
+        name="formfactor"
+        id="formfactor"
+        value="0.06"
+      /><sup> * use 0.06 for most CTS calculations</sup>
+    </div>
+    <br />
+    <div>
+      <input type="file" name="inputfile" id="inputfile" />
+    </div>
+    <br />
+    <div>
+      <button id="reset" type="button">Reset</button>
+    </div>
+    <br />
+    <small>
+      <div style="color: red">
+        Note: If you do not enter a viewport height, the program will run
+        calculations based on the inner width of your browser window.
+      </div>
+    </small>
+    <hr />
     <pre id="file"></pre>
   </body>
 </html>
 <script type="text/javascript">
   var vhToPxOutput = [];
   var pxToVwOutput = [];
-  var viewportHeight = window.innerHeight;
   var vhRegex = /([.?\d]+)(vh)/;
   var pxRegex = /([.?\d]+)(px)/;
   var numRegex = /([-.0-9]+)/;
+  var viewportSum = window.innerHeight + document.body.clientHeight;
+
+  getViewportHeight = () => {
+    var inputViewportHeight = document.getElementById("viewportheight").value;
+    if (inputViewportHeight != "") {
+      return inputViewportHeight;
+    }
+    return window.innerHeight;
+  };
+
+  getFormFactor = () => {
+    var formFactor = document.getElementById("formfactor").value;
+    if (formFactor != "") {
+      return parseFloat(formFactor);
+    }
+  };
+
+  convertVhToPx = (vh, viewportHeight) => {
+    return `${((vh * viewportHeight) / 100).toFixed(2)}px`;
+  };
+
+  convertPxToVw = (px, viewportHeight) => {
+    return `${((100 * px) / window.innerWidth).toFixed(2)}vw`;
+  };
 
   document.getElementById("inputfile").addEventListener("change", () => {
+    var viewportSum = window.innerHeight + document.body.clientHeight;
+    var formFactor = getFormFactor();
+    var viewportHeight = formFactor
+      ? viewportSum * (1 + formFactor)
+      : viewportSum;
     var reader = new FileReader();
-    var fileToRead = document.querySelector("input").files[0];
+    var fileToRead = document.getElementById("inputfile").files[0];
 
     reader.addEventListener("loadend", () => {
       var text = reader.result;
@@ -39,7 +106,7 @@
           vhToPxOutput.push(line);
           continue;
         } else {
-          var conversion = convertVhToPx(vh[1]);
+          var conversion = convertVhToPx(vh[1], viewportHeight);
           vhToPxOutput.push(line.replace(`${vh[1]}vh`, conversion));
         }
       }
@@ -52,7 +119,7 @@
           pxToVwOutput.push(line);
           continue;
         } else {
-          var conversion = convertPxToVw(px[1]);
+          var conversion = convertPxToVw(px[1], viewportHeight);
           pxToVwOutput.push(line.replace(`${px[1]}px`, conversion));
         }
       }
@@ -61,11 +128,11 @@
     reader.readAsText(fileToRead);
   });
 
-  convertVhToPx = (vh) => {
-    return `${parseInt((vh * viewportHeight) / 100)}px`;
-  };
-
-  convertPxToVw = (px) => {
-    return `${parseInt((100 * px) / window.innerWidth)}vw`;
+  document.getElementById("reset").onclick = () => {
+    location.reload();
+    // document.getElementById("file").innerText = "";
+    // document.getElementById("viewportheight").value = "";
+    // document.getElementById("formfactor").value = "";
+    // document.getElementById("inputfile").value = "";
   };
 </script>
