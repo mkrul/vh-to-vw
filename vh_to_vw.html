@@ -20,22 +20,7 @@
     </ol>
     <div>
       <label>Viewport height:</label>
-      <input
-        type="textbox"
-        name="viewportheight"
-        id="viewportheight"
-        value="1409"
-      /><sup> * use 1409 for most CTS calculations</sup>
-    </div>
-    <br />
-    <div>
-      <label>Form Factor:</label>
-      <input
-        type="textbox"
-        name="formfactor"
-        id="formfactor"
-        value="0.06"
-      /><sup> * use 0.06 for most CTS calculations</sup>
+      <input type="textbox" name="viewportheight" id="viewportheight" />
     </div>
     <br />
     <div>
@@ -62,22 +47,6 @@
   var vhRegex = /([.?\d]+)(vh)/;
   var pxRegex = /([.?\d]+)(px)/;
   var numRegex = /([-.0-9]+)/;
-  var viewportSum = window.innerHeight + document.body.clientHeight;
-
-  getViewportHeight = () => {
-    var inputViewportHeight = document.getElementById("viewportheight").value;
-    if (inputViewportHeight != "") {
-      return inputViewportHeight;
-    }
-    return window.innerHeight;
-  };
-
-  getFormFactor = () => {
-    var formFactor = document.getElementById("formfactor").value;
-    if (formFactor != "") {
-      return parseFloat(formFactor);
-    }
-  };
 
   convertVhToPx = (vh, viewportHeight) => {
     return `${((vh * viewportHeight) / 100).toFixed(2)}px`;
@@ -88,12 +57,8 @@
   };
 
   document.getElementById("inputfile").addEventListener("change", () => {
-    var viewportSum = window.innerHeight + document.body.clientHeight;
-    var formFactor = getFormFactor();
-    var viewportHeight = formFactor
-      ? viewportSum * (1 + formFactor)
-      : viewportSum;
     var reader = new FileReader();
+    var viewportHeight = document.getElementById("viewportheight").value;
     var fileToRead = document.getElementById("inputfile").files[0];
 
     reader.addEventListener("loadend", () => {
