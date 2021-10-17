@@ -53,7 +53,7 @@
   };
 
   convertPxToVw = (px, viewportHeight) => {
-    return `${((100 * px) / window.innerWidth).toFixed(2)}vw`;
+    return `${((100 * px) / viewportHeight).toFixed(2)}vw`;
   };
 
   document.getElementById("inputfile").addEventListener("change", () => {
