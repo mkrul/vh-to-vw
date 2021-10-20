@@ -38,47 +38,66 @@
 <script type="text/javascript">
   var vhToPxOutput = [];
   var pxToVwOutput = [];
-  var vhRegex = /([.?\d]+)(vh)/;
-  var pxRegex = /([.?\d]+)(px)/;
+  var vhRegex = /([.?\d]+)(vh)/g;
+  var pxRegex = /([.?\d]+)(px)/g;
   var numRegex = /([-.0-9]+)/;
 
   convertVhToPx = (vh, viewportHeight) => {
-    return `${((vh * viewportHeight) / 100).toFixed(2)}px`;
+    return `${((parseInt(vh) * viewportHeight) / 100).toFixed(2)}px`;
   };
 
   convertPxToVw = (px, viewportHeight) => {
-    return `${((100 * px) / viewportHeight).toFixed(2)}vw`;
+    return `${((100 * parseInt(px)) / window.innerWidth).toFixed(2)}vw`;
   };
 
   document.getElementById("inputfile").addEventListener("change", () => {
     var reader = new FileReader();
     var viewportHeight = document.getElementById("viewportheight").value;
+
     var fileToRead = document.getElementById("inputfile").files[0];
 
     reader.addEventListener("loadend", () => {
       var text = reader.result;
       var vhLines = text.split("\n");
       for (var line of vhLines) {
-        var vh = line.match(vhRegex);
-        if (vh === null) {
+        var vhMatches = line.match(vhRegex);
+        if (vhMatches === null) {
           vhToPxOutput.push(line);
           continue;
         } else {
-          var conversion = convertVhToPx(vh[1], viewportHeight);
-          vhToPxOutput.push(line.replace(`${vh[1]}vh`, conversion));
+          var newLineOutput = [];
+          var splitLine = line.split(" ");
+          for (var value of splitLine) {
+            if (value.match(vhRegex)) {
+              var conversion = convertVhToPx(value, viewportHeight);
+              newLineOutput.push(conversion);
+            } else {
+              newLineOutput.push(value);
+            }
+          }
+          vhToPxOutput.push(`${newLineOutput.join(" ")};`);
         }
       }
 
       var pxOutput = vhToPxOutput.join("\n");
       var pxLines = pxOutput.split("\n");
       for (var line of pxLines) {
-        var px = line.match(pxRegex);
-        if (px === null) {
+        var pxMatches = line.match(pxRegex);
+        if (pxMatches === null) {
           pxToVwOutput.push(line);
           continue;
         } else {
-          var conversion = convertPxToVw(px[1], viewportHeight);
-          pxToVwOutput.push(line.replace(`${px[1]}px`, conversion));
+          var newLineOutput = [];
+          var splitLine = line.split(" ");
+          for (var value of splitLine) {
+            if (value.match(pxRegex)) {
+              var conversion = convertPxToVw(value, viewportHeight);
+              newLineOutput.push(conversion);
+            } else {
+              newLineOutput.push(value);
+            }
+          }
+          pxToVwOutput.push(`${newLineOutput.join(" ")};`);
         }
       }
       document.getElementById("file").innerText = pxToVwOutput.join("\n");
